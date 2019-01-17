@@ -11,7 +11,7 @@
     "react-scripts": "2.1.3"
   },
   "scripts": {
-    "build": "parcel build ./client/index.html",
+    "build": "parcel watch ./client/index.html",
     "start": "nodemon server.js"
   },
   "eslintConfig": {
