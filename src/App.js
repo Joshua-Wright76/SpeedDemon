@@ -2,8 +2,12 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import key from './environment.js';
+
+
 class App extends Component {
   render() {
+    console.log(process.env)
     return (
       <div className="App">
         <header className="App-header">
