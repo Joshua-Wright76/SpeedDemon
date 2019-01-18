@@ -10,6 +10,7 @@ const mapStyles = {
 class MapWrapper extends Component {
     constructor(props){
         super(props);
+        console.log('props from MapWrapper: ', props)
     }
 
     render(){ //37.692660, -122.309536

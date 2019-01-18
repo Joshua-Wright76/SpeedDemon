@@ -24,6 +24,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "express-stream-json": "0.0.5",
+    "mz": "^2.7.0",
     "nodemon": "^1.18.9"
   }
 }

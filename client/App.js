@@ -6,30 +6,31 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      data: 'placeholder'
+      trips: 'placeholder'
     }
   }
 
   componentDidMount(){
-    fetch('http://localhost:3001/trips')
+    console.log('fetching data!')
+    fetch('http://localhost:3000/trips')
       .catch(error => {
         console.error(error)
       })
       .then(res => {
+        console.log('Got a result back! Just formatting it now.')
         return res.json();
       })
-      .catch(error => {
-        console.error(error)
-      })
       .then(data => {
-        console.log(JSON.stringify(data))
+        console.log(data);
+        this.setState({trips: data});
       })
+
   }
 
   render() {
     return (
       <div className="App">
-        <MapWrapper/>
+        <MapWrapper trips = {this.state.trips}/>
       </div>
     );
   }
