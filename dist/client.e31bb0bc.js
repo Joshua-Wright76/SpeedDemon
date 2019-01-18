@@ -31141,7 +31141,85 @@ var global = arguments[3];
 
   exports.default = Map;
 });
-},{"./GoogleApiComponent":"../node_modules/google-maps-react/dist/GoogleApiComponent.js","./components/Marker":"../node_modules/google-maps-react/dist/components/Marker.js","./components/InfoWindow":"../node_modules/google-maps-react/dist/components/InfoWindow.js","./components/HeatMap":"../node_modules/google-maps-react/dist/components/HeatMap.js","./components/Polygon":"../node_modules/google-maps-react/dist/components/Polygon.js","./components/Polyline":"../node_modules/google-maps-react/dist/components/Polyline.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-dom":"../node_modules/react-dom/index.js","./lib/String":"../node_modules/google-maps-react/dist/lib/String.js","./lib/cancelablePromise":"../node_modules/google-maps-react/dist/lib/cancelablePromise.js"}],"components/MapWrapper.jsx":[function(require,module,exports) {
+},{"./GoogleApiComponent":"../node_modules/google-maps-react/dist/GoogleApiComponent.js","./components/Marker":"../node_modules/google-maps-react/dist/components/Marker.js","./components/InfoWindow":"../node_modules/google-maps-react/dist/components/InfoWindow.js","./components/HeatMap":"../node_modules/google-maps-react/dist/components/HeatMap.js","./components/Polygon":"../node_modules/google-maps-react/dist/components/Polygon.js","./components/Polyline":"../node_modules/google-maps-react/dist/components/Polyline.js","react":"../node_modules/react/index.js","prop-types":"../node_modules/prop-types/index.js","react-dom":"../node_modules/react-dom/index.js","./lib/String":"../node_modules/google-maps-react/dist/lib/String.js","./lib/cancelablePromise":"../node_modules/google-maps-react/dist/lib/cancelablePromise.js"}],"randomPastel.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.randomPastel = randomPastel;
+exports.randomGreyscale = randomGreyscale;
+
+function randomPastel() {
+  var seed = ~~(Math.random() * 5);
+  var color = [0, 0, 0];
+
+  if (seed == 0) {
+    color = '#FFB3BA';
+  } //[255,179,186]
+
+
+  if (seed == 1) {
+    color = '#FFBAFF';
+  } //[255,186,255]
+
+
+  if (seed == 2) {
+    color = '#FFFFBA';
+  } //[255,255,186]
+
+
+  if (seed == 3) {
+    color = '#BAFFC9';
+  } //[186,255,201]
+
+
+  if (seed == 4) {
+    color = '#BAFFFF';
+  } //[186,225,255]
+
+
+  return color;
+}
+
+function randomGreyscale() {
+  var seed = ~~(Math.random() * 5);
+  var color = [0, 0, 0];
+
+  if (seed == 0) {
+    color = '#333333';
+  }
+
+  if (seed == 1) {
+    color = '#444444';
+  }
+
+  if (seed == 2) {
+    color = '#555555';
+  }
+
+  if (seed == 3) {
+    color = '#666666';
+  }
+
+  if (seed == 4) {
+    color = '#777777';
+  }
+
+  return color;
+}
+},{}],"constants.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.LOW_RES = exports.DEFAULT = void 0;
+var DEFAULT = 'DEFAULT';
+exports.DEFAULT = DEFAULT;
+var LOW_RES = 'LOW_RES';
+exports.LOW_RES = LOW_RES;
+},{}],"components/MapWrapper.jsx":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31154,6 +31232,10 @@ var _react = _interopRequireWildcard(require("react"));
 var _environment = require("../environment.js");
 
 var _googleMapsReact = require("google-maps-react");
+
+var _randomPastel = require("../randomPastel.js");
+
+var types = _interopRequireWildcard(require("../constants.js"));
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
 
@@ -31192,14 +31274,74 @@ function (_Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(MapWrapper).call(this, props));
     console.log('props from MapWrapper: ', props);
+    _this.state = {
+      bracketize: function bracketize(n) {
+        if (n >= 60) return 60;else if (n >= 30) return 30;else return 0;
+      },
+      bracketColors: {
+        0: "#000000",
+        30: "#00FF00",
+        60: "FF0000"
+      },
+      mode: types.DEFAULT
+    };
     return _this;
   }
 
   _createClass(MapWrapper, [{
     key: "render",
     value: function render() {
+      var _this2 = this;
+
       //37.692660, -122.309536
-      return _react.default.createElement("div", null, _react.default.createElement(_googleMapsReact.Map, {
+      var markers = [];
+      var polylines = [];
+
+      if (this.props.trips[7]) {
+        var maxSpeed = -Infinity;
+        this.props.trips.forEach(function (trip) {
+          // let speedBracket = this.state.bracketize(trip.coords[0].speed);
+          var randomColor = (0, _randomPastel.randomGreyscale)();
+          var lastSpeed = trip.coords[0].speed;
+          var path = []; // markers.push(<Marker />)
+
+          trip.coords.forEach(function (coord) {
+            if (false) {
+              //this.state.bracketize(coord.speed) !== speedBracket Math.round(coord.speed / 2) * 2) !== lastSpeed
+              var hexChunk = Math.round(coord.speed / 45 * 16).toString(16); // const color = '#' + hexChunk + hexChunk + hexChunk
+
+              polylines.push(_react.default.createElement(_googleMapsReact.Polyline, {
+                path: path
+              }));
+              _this2.speedBracket = _this2.state.bracketize(coord.speed);
+              path = [];
+            } else {
+              if (maxSpeed < coord.speed) {
+                maxSpeed = coord.speed;
+                console.log(maxSpeed);
+              }
+
+              if (_this2.state.mode === types.DEFAULT) {
+                path.push({
+                  lng: coord.lng,
+                  lat: coord.lat
+                });
+              } else if (_this2.state.mode === types.LOW_RES) {
+                path.push({
+                  lng: Math.round(coord.lng / 0.005) * 0.005,
+                  lat: Math.round(coord.lat / 0.005) * 0.005
+                });
+              }
+            }
+          });
+          polylines.push(_react.default.createElement(_googleMapsReact.Polyline, {
+            path: path,
+            strokeColor: randomColor
+          }));
+        });
+      }
+
+      var map = _react.default.createElement("div", null, _react.default.createElement(_googleMapsReact.Map, {
         google: this.props.google,
         zoom: 10,
         style: mapStyles,
@@ -31207,7 +31349,13 @@ function (_Component) {
           lat: 37.692660,
           lng: -122.309536
         }
-      }));
+      }, polylines));
+
+      if (this.props.trips[1]) {
+        console.log(this.props.trips);
+        console.log(polylines);
+        return map;
+      } else return _react.default.createElement("div", null);
     }
   }]);
 
@@ -31219,7 +31367,7 @@ var _default = (0, _googleMapsReact.GoogleApiWrapper)({
 })(MapWrapper);
 
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","../environment.js":"environment.js","google-maps-react":"../node_modules/google-maps-react/dist/index.js"}],"App.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","../environment.js":"environment.js","google-maps-react":"../node_modules/google-maps-react/dist/index.js","../randomPastel.js":"randomPastel.js","../constants.js":"constants.js"}],"App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31267,7 +31415,7 @@ function (_Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(App).call(this, props));
     _this.state = {
-      trips: 'placeholder'
+      trips: []
     };
     return _this;
   }
@@ -31476,7 +31624,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39985" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33377" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

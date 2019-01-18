@@ -3,31 +3,9 @@ const app = express();
 const fs = require('fs')
 const { promisify } = require('util')
 const trips = [];
-// console.log(tripFileNames.length);
-
-
-
-// tripFileNames.forEach(name => {
-//     console.log(name);
-//     fs.readFile('./resources/trips/' + name, (err, data) => {
-//         if(err) console.error(err);
-//         else {
-//             // console.log(data.toString());
-//         }
-//     })
-// })
 
 app.get('/trips', (req, res) => {
     console.log('trip data requested!')
-    // res.writeHead(200, {
-    //     'Content-Type': 'text/plain',
-    //     'Transfer-Encoding': 'chunked'
-    // })
-
-    
-
-
-    
 
     const fileNames = fs.readdirSync('./resources/trips');
     const allTrips = [];
@@ -64,29 +42,6 @@ app.get('/trips', (req, res) => {
             console.log('Stream ended')
             res.end()
         })
-    
-
-
-
-    // fs.readdir('./resources/trips', (err, data) => {
-    //     if(err) console.error(err);
-    //     else {
-    //         const tripNames = data;
-    //         tripNames.forEach(name => {
-    //             // console.log(name);
-    //             fs.readFileSync('resources/trips/'+name, 'utf-8', (err, data) => {
-    //                 if(err) console.error(err);
-    //                 else {
-    //                     res.write(JSON.stringify(data))
-    //                 }
-    //             })
-    //         })
-    //         res.end();
-    //     }
-    // })
-
-    // console.log(trips)
-    // res.send(trips)
 })
 
 app.use('/', express.static('./dist'))

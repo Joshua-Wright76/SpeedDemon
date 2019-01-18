@@ -6,6 +6,7 @@
     "dotenv": "^6.2.0",
     "fs": "0.0.1-security",
     "google-maps-react": "^2.0.2",
+    "random-hex-color": "^1.0.1",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-scripts": "2.1.3"
