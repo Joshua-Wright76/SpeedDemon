@@ -24549,12 +24549,7 @@ function reloadCSS() {
 }
 
 module.exports = reloadCSS;
-},{"./bundle-url":"../node_modules/parcel/src/builtins/bundle-url.js"}],"index.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"_css_loader":"../node_modules/parcel/src/builtins/css-loader.js"}],"App.css":[function(require,module,exports) {
+},{"./bundle-url":"../node_modules/parcel/src/builtins/bundle-url.js"}],"App.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -31258,8 +31253,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
 var mapStyles = {
-  height: '800px',
-  width: '800px'
+  height: '60%',
+  width: '100%'
 };
 
 var MapWrapper =
@@ -31268,80 +31263,50 @@ function (_Component) {
   _inherits(MapWrapper, _Component);
 
   function MapWrapper(props) {
-    var _this;
-
     _classCallCheck(this, MapWrapper);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(MapWrapper).call(this, props));
-    console.log('props from MapWrapper: ', props);
-    _this.state = {
-      bracketize: function bracketize(n) {
-        if (n >= 60) return 60;else if (n >= 30) return 30;else return 0;
-      },
-      bracketColors: {
-        0: "#000000",
-        30: "#00FF00",
-        60: "FF0000"
-      },
-      mode: types.DEFAULT
-    };
-    return _this;
+    return _possibleConstructorReturn(this, _getPrototypeOf(MapWrapper).call(this, props));
   }
 
   _createClass(MapWrapper, [{
     key: "render",
     value: function render() {
-      var _this2 = this;
+      var _this = this;
 
       //37.692660, -122.309536
-      var markers = [];
       var polylines = [];
+      this.props.trips.forEach(function (trip) {
+        // let speedBracket = this.state.bracketize(trip.coords[0].speed);
+        var randomColor = (0, _randomPastel.randomGreyscale)(); // markers.push(<Marker />)
 
-      if (this.props.trips[7]) {
-        var maxSpeed = -Infinity;
-        this.props.trips.forEach(function (trip) {
-          // let speedBracket = this.state.bracketize(trip.coords[0].speed);
-          var randomColor = (0, _randomPastel.randomGreyscale)();
-          var lastSpeed = trip.coords[0].speed;
-          var path = []; // markers.push(<Marker />)
+        trip.coords.forEach(function (coord) {
+          if (maxSpeed < coord.speed) {
+            maxSpeed = coord.speed;
+            console.log(maxSpeed);
+          }
 
-          trip.coords.forEach(function (coord) {
-            if (false) {
-              //this.state.bracketize(coord.speed) !== speedBracket Math.round(coord.speed / 2) * 2) !== lastSpeed
-              var hexChunk = Math.round(coord.speed / 45 * 16).toString(16); // const color = '#' + hexChunk + hexChunk + hexChunk
+          if (_this.state.mode === types.DEFAULT) {
+            path.push({
+              lng: coord.lng,
+              lat: coord.lat
+            });
+          } else if (_this.state.mode === types.LOW_RES) {
+            path.push({
+              lng: Math.round(coord.lng / 0.005) * 0.005,
+              lat: Math.round(coord.lat / 0.005) * 0.005
+            });
+          }
 
-              polylines.push(_react.default.createElement(_googleMapsReact.Polyline, {
-                path: path
-              }));
-              _this2.speedBracket = _this2.state.bracketize(coord.speed);
-              path = [];
-            } else {
-              if (maxSpeed < coord.speed) {
-                maxSpeed = coord.speed;
-                console.log(maxSpeed);
-              }
-
-              if (_this2.state.mode === types.DEFAULT) {
-                path.push({
-                  lng: coord.lng,
-                  lat: coord.lat
-                });
-              } else if (_this2.state.mode === types.LOW_RES) {
-                path.push({
-                  lng: Math.round(coord.lng / 0.005) * 0.005,
-                  lat: Math.round(coord.lat / 0.005) * 0.005
-                });
-              }
-            }
-          });
           polylines.push(_react.default.createElement(_googleMapsReact.Polyline, {
             path: path,
             strokeColor: randomColor
           }));
         });
-      }
+      });
 
-      var map = _react.default.createElement("div", null, _react.default.createElement(_googleMapsReact.Map, {
+      var map = _react.default.createElement("div", {
+        id: "MapWrapper"
+      }, _react.default.createElement(_googleMapsReact.Map, {
         google: this.props.google,
         zoom: 10,
         style: mapStyles,
@@ -31367,7 +31332,94 @@ var _default = (0, _googleMapsReact.GoogleApiWrapper)({
 })(MapWrapper);
 
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","../environment.js":"environment.js","google-maps-react":"../node_modules/google-maps-react/dist/index.js","../randomPastel.js":"randomPastel.js","../constants.js":"constants.js"}],"App.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","../environment.js":"environment.js","google-maps-react":"../node_modules/google-maps-react/dist/index.js","../randomPastel.js":"randomPastel.js","../constants.js":"constants.js"}],"components/Option.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+var Option = function Option(props) {
+  return _react.default.createElement("div", {
+    className: "options"
+  }, _react.default.createElement("button", {
+    id: props.label
+  }, props.label));
+};
+
+var _default = Option;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js"}],"components/Menu.jsx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _Option = _interopRequireDefault(require("./Option.jsx"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Menu =
+/*#__PURE__*/
+function (_Component) {
+  _inherits(Menu, _Component);
+
+  function Menu(props) {
+    _classCallCheck(this, Menu);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Menu).call(this, props));
+  }
+
+  _createClass(Menu, [{
+    key: "render",
+    value: function render() {
+      return _react.default.createElement("div", {
+        id: "menu"
+      }, _react.default.createElement(_Option.default, {
+        label: "Default"
+      }), _react.default.createElement(_Option.default, {
+        label: "Lo-Res"
+      }), _react.default.createElement(_Option.default, {
+        label: "By Speed"
+      }));
+    }
+  }]);
+
+  return Menu;
+}(_react.Component);
+
+var _default = Menu;
+exports.default = _default;
+},{"react":"../node_modules/react/index.js","./Option.jsx":"components/Option.jsx"}],"App.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31380,6 +31432,10 @@ var _react = _interopRequireWildcard(require("react"));
 require("./App.css");
 
 var _MapWrapper = _interopRequireDefault(require("./components/MapWrapper.jsx"));
+
+var _Menu = _interopRequireDefault(require("./components/Menu.jsx"));
+
+var types = _interopRequireWildcard(require("./constants.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31415,7 +31471,13 @@ function (_Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(App).call(this, props));
     _this.state = {
-      trips: []
+      trips: [],
+      mode: types.DEFAULT,
+      setMode: function setMode(newMode) {
+        return _this.setState({
+          mode: newMode
+        });
+      }
     };
     return _this;
   }
@@ -31446,7 +31508,7 @@ function (_Component) {
         className: "App"
       }, _react.default.createElement(_MapWrapper.default, {
         trips: this.state.trips
-      }));
+      }), _react.default.createElement(_Menu.default, null));
     }
   }]);
 
@@ -31455,7 +31517,7 @@ function (_Component) {
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./App.css":"App.css","./components/MapWrapper.jsx":"components/MapWrapper.jsx"}],"serviceWorker.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./App.css":"App.css","./components/MapWrapper.jsx":"components/MapWrapper.jsx","./components/Menu.jsx":"components/Menu.jsx","./constants.js":"constants.js"}],"serviceWorker.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31581,8 +31643,6 @@ var _react = _interopRequireDefault(require("react"));
 
 var _reactDom = _interopRequireDefault(require("react-dom"));
 
-require("./index.css");
-
 var _App = _interopRequireDefault(require("./App"));
 
 var serviceWorker = _interopRequireWildcard(require("./serviceWorker"));
@@ -31597,7 +31657,7 @@ _reactDom.default.render(_react.default.createElement(_App.default, null), docum
 
 
 serviceWorker.unregister();
-},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","./index.css":"index.css","./App":"App.js","./serviceWorker":"serviceWorker.js"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","react-dom":"../node_modules/react-dom/index.js","./App":"App.js","./serviceWorker":"serviceWorker.js"}],"../node_modules/parcel/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -31624,7 +31684,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "33377" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "39869" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

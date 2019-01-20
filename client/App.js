@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
 import './App.css';
 import MapWrapper from './components/MapWrapper.jsx';
+import Menu from './components/Menu.jsx';
+import * as types from './constants.js'
 
 class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      trips: []
+      trips: [],
+      mode: types.DEFAULT,
+      setMode: newMode => this.setState({mode: newMode})
     }
   }
 
@@ -31,6 +35,7 @@ class App extends Component {
     return (
       <div className="App">
         <MapWrapper trips = {this.state.trips}/>
+        <Menu></Menu>
       </div>
     );
   }

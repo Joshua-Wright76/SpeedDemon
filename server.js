@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const fs = require('fs')
 const { promisify } = require('util')
-const trips = [];
 
 app.get('/trips', (req, res) => {
     console.log('trip data requested!')
