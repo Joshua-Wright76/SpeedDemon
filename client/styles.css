@@ -1,0 +1,103 @@
+.App {
+  text-align: center;
+}
+
+#loading {
+  position: fixed;
+  margin-top: 80px;
+  margin-left: 20px;
+  height: 50px;
+  width: 230px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+#loading > img {
+  height: 50px;
+  width: 50px;    
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 3s linear;
+  height: 50px;
+  width: 50px;
+  margin-top: 5px;
+  margin-right: 5px;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+#MapWrapper {
+  height: 60%
+}
+
+#map {
+  height: 200px;
+}
+
+.App {
+  height: 100%;
+  margin: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#menu {
+  z-index: 5;
+  height: 150px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 500px;
+}
+
+
+#root {
+  height: 100%;
+  margin: 0px;
+}
+
+html {
+  height: 100%;
+  margin: 0px;
+}
+
+body {
+  height: 100%;
+  margin: 0px;
+}
+
+button {
+  color: white;
+  background-color: black;
+  border-radius: 80px;
+  height: 30px;
+  width: 200px;
+  margin: 50px;
+}
+
+
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

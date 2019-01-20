@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Option from './Option.jsx';
+import * as types from '../constants.js'
 
 class Menu extends Component {
     constructor(props){
@@ -9,9 +10,13 @@ class Menu extends Component {
     render(){
         return (
             <div id="menu">
-                <Option label="Default"></Option>
-                <Option label="Lo-Res"></Option>
-                <Option label="By Speed"></Option>
+                <Option label="Default" handleClick = {this.props.setMode} val = {types.DEFAULT}/>
+                <Option label="Lo-Res" handleClick = {this.props.setMode} val = {types.LOW_RES}/>
+                <Option label="Simplified" handleClick = {this.props.setMode} val = {types.SIMPLIFIED}/>
+
+                {/* <Option label="Dark Mode" handleClick = {this.props.setTheme} val = {types.DARK_MODE}/> */}
+                {/* <Option label="Greyscale" handleClick = {this.props.setTheme} val = {types.GREYSCALE}/> */}
+                <Option label="By Speed" handleClick = {this.props.setMode} val = {types.BY_SPEED}/>
             </div>
         )
     }
