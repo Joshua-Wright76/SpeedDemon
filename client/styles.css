@@ -72,6 +72,16 @@
   margin: 0px;
 }
 
+#info {
+  margin-top: 60px;
+  margin-left: 12px;
+  text-align: center;
+  position: fixed;
+  width: 180px;
+  height: 200px;
+  background-color: white;
+}
+
 html {
   height: 100%;
   margin: 0px;

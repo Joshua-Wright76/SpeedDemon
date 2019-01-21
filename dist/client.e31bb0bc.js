@@ -31264,9 +31264,9 @@ function (_Component) {
       function setPoint(points, coord, index) {
         //setpoint rounds off the coordinates for you to the nearest .001
         var lng = ('' + coord.lng).split('.');
-        lng = lng[0] + '.' + lng[1].slice(0, 3);
+        lng = lng[0] + '.' + lng[1].slice(0, 4);
         var lat = ('' + coord.lat).split('.');
-        lat = lat[0] + '.' + lat[1].slice(0, 3);
+        lat = lat[0] + '.' + lat[1].slice(0, 4);
         var rounded = lat + ':' + lng;
 
         if (!!points[rounded]) {
@@ -31283,29 +31283,30 @@ function (_Component) {
       }
 
       var index = 0;
-      var select = this.props.selectTrip;
+
+      var select = function select(index) {
+        return _this2.props.selectTrip(index);
+      };
+
       this.props.trips.forEach(function (trip) {
-        index++; // if(index !== 0) return;
+        var avgSpeed = 0; // if(index !== 0) return;
         // let speedBracket = this.state.bracketize(trip.coords[0].speed);
 
         var randomColor = (0, _randomPastel.randomGreyscale)();
 
-        if (_this2.props.mode === types.BY_SPEED) {
-          var currentSpeed = trip.coords[0].speed;
-        }
-
         function addPolyline(polylines, path) {
           var color = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : (0, _randomPastel.randomGreyscale)();
-          var weight = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 5;
-          index++;
+          var weight = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 4;
           trip.id = index;
+          index++; // console.log(index);
+
           polylines.push(_react.default.createElement(_googleMapsReact.Polyline, {
             path: path,
             strokeColor: color,
             strokeWeight: weight,
             key: index,
             onClick: function onClick(e) {
-              return select(index);
+              return select(trip.id);
             }
           }));
         }
@@ -31315,9 +31316,10 @@ function (_Component) {
 
         for (var i in trip.coords) {
           var coord = trip.coords[i];
+          avgSpeed += coord.speed;
           var mode = _this2.props.mode;
 
-          if (mode === types.DEFAULT) {
+          if (mode === types.DEFAULT || mode === types.BY_SPEED) {
             path.push({
               lng: coord.lng,
               lat: coord.lat
@@ -31352,7 +31354,29 @@ function (_Component) {
           }
         }
 
-        index === _this2.props.selectedTrip ? addPolyline(polylines, path, "#00FFFF", 10) : addPolyline(polylines, path); //avoid point lines
+        trip.avgSpeed = avgSpeed / trip.coords.length;
+        console.log(index, _this2.props.selectedTrip);
+
+        if (index === _this2.props.selectedTrip) {
+          console.log('rendering selected trip');
+          var start = trip.coords[0];
+          var end = trip.coords[trip.coords.length - 1];
+          markers.push(_react.default.createElement(_googleMapsReact.Marker, {
+            position: {
+              lng: start.lng,
+              lat: start.lat
+            }
+          }));
+          markers.push(_react.default.createElement(_googleMapsReact.Marker, {
+            position: {
+              lng: end.lng,
+              lat: end.lat
+            }
+          }));
+          addPolyline(polylines, path, "#FF3333", 10);
+        } else {
+          addPolyline(polylines, path, (0, _randomPastel.randomGreyscale)(), trip.avgSpeed / 40 * 5 + 2);
+        }
       });
 
       if (polylines.length) {
@@ -45531,23 +45555,41 @@ function (_Component) {
   _createClass(Chart, [{
     key: "render",
     value: function render() {
+      var _this = this;
+
       var temp = {};
-      this.props.trips.forEach(function (trip) {
-        trip.coords.forEach(function (coord) {
+      var data = [];
+
+      if (!this.props.selectedTrip) {
+        this.props.trips.forEach(function (trip) {
+          trip.coords.forEach(function (coord) {
+            var speed = Math.round(coord.speed / 2) * 2;
+
+            if (!!temp[speed]) {
+              temp[speed]++;
+            } else temp[speed] = 1;
+          });
+        });
+        Object.keys(temp).forEach(function (speed) {
+          data.push({
+            text: '' + speed,
+            value: temp[speed]
+          });
+        });
+      } else {
+        var selected;
+        this.props.trips.forEach(function (trip) {
+          if (trip.id === _this.props.selectedTrip) selected = trip;
+        });
+        selected.coords.forEach(function (coord) {
           var speed = Math.round(coord.speed / 2) * 2;
 
           if (!!temp[speed]) {
             temp[speed]++;
           } else temp[speed] = 1;
         });
-      });
-      var data = [];
-      Object.keys(temp).forEach(function (speed) {
-        data.push({
-          text: '' + speed,
-          value: temp[speed]
-        });
-      });
+      }
+
       return _react.default.createElement("div", {
         id: "chart"
       }, _react.default.createElement(_reactBarChart.default, {
@@ -45579,13 +45621,13 @@ exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _MapWrapper = _interopRequireDefault(require("./components/MapWrapper.jsx"));
+var _MapWrapper = _interopRequireDefault(require("./components/MapWrapper"));
 
-var _Menu = _interopRequireDefault(require("./components/Menu.jsx"));
+var _Menu = _interopRequireDefault(require("./components/Menu"));
 
-var _Chart = _interopRequireDefault(require("./components/Chart.jsx"));
+var _Chart = _interopRequireDefault(require("./components/Chart"));
 
-var types = _interopRequireWildcard(require("./constants.js"));
+var types = _interopRequireWildcard(require("./constants"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -45601,13 +45643,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 var App =
 /*#__PURE__*/
@@ -45636,11 +45678,20 @@ function (_Component) {
       theme: types.GREYSCALE,
       selectedTrip: undefined,
       selectTrip: function selectTrip(key) {
+        console.log('key: ', key);
+
         _this.setState({
-          slectedTrip: key
+          selectedTrip: key
         });
       }
     };
+
+    _this.state.selectTrip.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+
+    _this.state.setMode.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+
+    _this.state.setTheme.bind(_assertThisInitialized(_assertThisInitialized(_this)));
+
     return _this;
   }
 
@@ -45665,8 +45716,11 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
+      var _this3 = this;
+
       var loading;
-      var loadingIconSrc = "https://static.thenounproject.com/png/1016735-200.png";
+      var info;
+      var loadingIconSrc = "https://community.thunkable.com/uploads/default/original/1X/a8c639f5bd67f6eecf3b7f2209c7e7fada621f9c.png";
 
       if (!this.state.trips.length) {
         var logoStyle = {
@@ -45680,6 +45734,21 @@ function (_Component) {
           className: "App-logo",
           style: logoStyle
         }), _react.default.createElement("p", null, "Loading from Database... Just a second!"));
+      } // console.log(!!this.state.trips.length);
+
+
+      if (this.state.selectedTrip) {
+        console.log('Selected Trip info up on the page! I hope.');
+        var selected; //find the selected trip and put it in the 'selected' variable.
+
+        this.state.trips.forEach(function (trip) {
+          if (trip.id === _this3.state.selectedTrip) selected = trip;
+        });
+        var timeElapsed = (Date.parse(selected.end_time) - Date.parse(selected.start_time)) / 3600000;
+        timeElapsed = Math.round(timeElapsed * 20) / 20;
+        info = _react.default.createElement("div", {
+          id: "info"
+        }, _react.default.createElement("p", null, selected.start_time), _react.default.createElement("p", null, selected.end_time), _react.default.createElement("p", null, timeElapsed + ' Hours'), _react.default.createElement("p", null, "Avg. Speed: " + Math.round(selected.avgSpeed)));
       }
 
       return _react.default.createElement("div", {
@@ -45690,11 +45759,12 @@ function (_Component) {
         theme: this.state.theme,
         selectTrip: this.state.selectTrip,
         selectedTrip: this.state.selectedTrip
-      }), loading, _react.default.createElement(_Menu.default, {
+      }), loading, info, _react.default.createElement(_Menu.default, {
         setMode: this.state.setMode,
         setTheme: this.state.setTheme
       }), _react.default.createElement(_Chart.default, {
-        trips: this.state.trips
+        trips: this.state.trips,
+        selectedTrip: this.state.selectedTrip
       }));
     }
   }]);
@@ -45704,7 +45774,7 @@ function (_Component) {
 
 var _default = App;
 exports.default = _default;
-},{"react":"../node_modules/react/index.js","./components/MapWrapper.jsx":"components/MapWrapper.jsx","./components/Menu.jsx":"components/Menu.jsx","./components/Chart.jsx":"components/Chart.jsx","./constants.js":"constants.js"}],"serviceWorker.js":[function(require,module,exports) {
+},{"react":"../node_modules/react/index.js","./components/MapWrapper":"components/MapWrapper.jsx","./components/Menu":"components/Menu.jsx","./components/Chart":"components/Chart.jsx","./constants":"constants.js"}],"serviceWorker.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -45871,7 +45941,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "42031" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "38471" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

@@ -7,19 +7,31 @@ class Chart extends Component {
     }
     render(){
         const temp = {}
-        this.props.trips.forEach(trip => {
-            trip.coords.forEach(coord => {
+        const data = []
+        if(!this.props.selectedTrip){
+            this.props.trips.forEach(trip => {
+                trip.coords.forEach(coord => {
+                    let speed = Math.round(coord.speed / 2) * 2
+                    if(!!temp[speed]){
+                        temp[speed]++;
+                    } else temp[speed] = 1;
+                    
+                })
+            })
+            Object.keys(temp).forEach(speed => {
+                data.push({text: ''+speed, value: temp[speed]});
+            })
+        } else {
+            let selected;
+            this.props.trips.forEach(trip => { if (trip.id === this.props.selectedTrip) selected = trip});
+            selected.coords.forEach(coord => {
                 let speed = Math.round(coord.speed / 2) * 2
                 if(!!temp[speed]){
                     temp[speed]++;
                 } else temp[speed] = 1;
-
+                
             })
-        })
-        const data = []
-        Object.keys(temp).forEach(speed => {
-            data.push({text: ''+speed, value: temp[speed]});
-        })
+        }
 
         return (
             <div id="chart">

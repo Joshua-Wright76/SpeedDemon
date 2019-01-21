@@ -21,9 +21,9 @@ class MapWrapper extends Component {
         const points = {};
         function setPoint(points, coord, index){ //setpoint rounds off the coordinates for you to the nearest .001
             let lng = (''+coord.lng).split('.');
-            lng = lng[0] + '.' + lng[1].slice(0, 3)
+            lng = lng[0] + '.' + lng[1].slice(0, 4)
             let lat = (''+coord.lat).split('.');
-            lat = lat[0] + '.' + lat[1].slice(0, 3)
+            lat = lat[0] + '.' + lat[1].slice(0, 4)
             let rounded = lat + ':' + lng;
 
             if(!!points[rounded]){
@@ -39,28 +39,28 @@ class MapWrapper extends Component {
         }
 
         let index = 0
-        let select = this.props.selectTrip;
+        let select = index => this.props.selectTrip(index);
         this.props.trips.forEach(trip => {
-            index++;
+            let avgSpeed = 0;
+            
             // if(index !== 0) return;
             // let speedBracket = this.state.bracketize(trip.coords[0].speed);
             
             let randomColor = randomGreyscale();
 
-            if(this.props.mode === types.BY_SPEED){
-                var currentSpeed = trip.coords[0].speed;
-            }
             
-            function addPolyline (polylines, path, color = randomGreyscale(), weight = 5) {
-                index++;
+            
+            function addPolyline (polylines, path, color = randomGreyscale(), weight = 4) {
                 trip.id = index;
+                index++;
+                // console.log(index);
                 polylines.push(
                     <Polyline
                     path = {path}
                     strokeColor = {color}
                     strokeWeight = {weight}
                     key={index}
-                    onClick = {e => select(index)}
+                    onClick = {e => select(trip.id)}
                     >
                     </Polyline>
                 )
@@ -70,15 +70,15 @@ class MapWrapper extends Component {
             let active = true;
             for(let i in trip.coords){
                 let coord = trip.coords[i];
+                avgSpeed += coord.speed;
                 const mode = this.props.mode;
-                if(mode === types.DEFAULT){
+                if(mode === types.DEFAULT || mode === types.BY_SPEED){
                     path.push({lng: coord.lng, lat: coord.lat});
                 } else if (mode === types.LOW_RES){
                     path.push({lng: Math.round(coord.lng / 0.005) * 0.005, lat: Math.round(coord.lat / 0.005) * 0.005})
                 } else if (mode === types.SIMPLIFIED){
                     if(setPoint(points, coord, index)) {//setpoint returns true if there's a point there already
                         // console.log('collision!');
-                        
                         if(active){
                             path.push({lng: coord.lng, lat: coord.lat});
                            
@@ -93,8 +93,19 @@ class MapWrapper extends Component {
                     }
                 }
             }
-            
-            index === this.props.selectedTrip ? addPolyline(polylines, path, "#00FFFF", 10) : addPolyline(polylines, path)//avoid point lines
+            trip.avgSpeed = avgSpeed / trip.coords.length;
+
+            console.log(index, this.props.selectedTrip)
+            if(index === this.props.selectedTrip){
+                console.log('rendering selected trip')
+                const start = trip.coords[0];
+                const end = trip.coords[trip.coords.length - 1];
+                markers.push(<Marker position = {{lng: start.lng, lat: start.lat}}/>)
+                markers.push(<Marker position = {{lng: end.lng, lat: end.lat}}/>)
+                addPolyline(polylines, path, "#FF3333", 10) 
+            } else {
+                addPolyline(polylines, path, randomGreyscale(), (trip.avgSpeed / 40) * 5 + 2)
+            }
             
         })
         if(polylines.length){
